@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>심장질환 퀴즈 50문항</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;padding:1rem}
+#app{max-width:760px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:8px;color:#1a1a1a}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat-pill{font-size:13px;padding:4px 12px;border-radius:20px;border:1px solid #ddd;color:#666;background:#fff}
+.stat-pill span{font-weight:600;color:#1a1a1a}
+.progress-bar{height:4px;background:#e0e0e0;border-radius:2px;margin-bottom:16px}
+.progress-fill{height:100%;background:#185FA5;border-radius:2px;transition:width 0.3s}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;border:1px solid #ccc;background:#fff;color:#666;cursor:pointer;font-size:13px}
+.filter-btn.active{border-color:#185FA5;color:#0C447C;background:#E6F1FB;font-weight:600}
+.q-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:12px}
+.q-meta{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.q-num{font-size:13px;color:#888}
+.diff-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.low{background:#EAF3DE;color:#3B6D11}.mid{background:#FAEEDA;color:#854F0B}.high{background:#FCEBEB;color:#A32D2D}
+.q-text{font-size:15px;line-height:1.65;margin-bottom:12px}
+.options{display:flex;flex-direction:column;gap:6px}
+.opt-btn{text-align:left;padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px;line-height:1.5}
+.opt-btn:hover:not(:disabled){background:#f5f5f3;border-color:#bbb}
+.opt-btn.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+.opt-btn.wrong{background:#FCEBEB;border-color:#A32D2D;color:#501313}
+.explanation{margin-top:10px;font-size:13px;padding:10px 12px;background:#f5f5f3;border-radius:8px;color:#555;line-height:1.65;border-left:3px solid #185FA5}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-bottom:2rem}
+.nav-btn{padding:8px 20px;border:1px solid #ccc;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px}
+.nav-btn:hover{background:#f5f5f3}
+.nav-btn:disabled{opacity:0.35;cursor:default}
+.q-counter{font-size:14px;color:#666}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const questions=[
+{d:'하',q:'심장 질환의 원인 중 가장 높은 비율(80%)을 차지하는 것은?',opts:['류마티스성 심질환','선천성 심질환','죽상경화증(atherosclerosis)','세균성 심내막염','심근병증(cardiomyopathy)'],ans:2,exp:'심장 질환의 원인 중 죽상경화증이 약 80%로 가장 큰 비중을 차지합니다. 나머지는 고혈압성 심질환, 선천성 심질환, 세균성 심내막염, 류마티스 심질환, 심근병증 등입니다.'},
+{d:'하',q:'울혈성 심부전(CHF)의 정의로 가장 적절한 것은?',opts:['심장이 혈액을 전혀 박출하지 못하는 상태','심장이 대사적 요구를 충족시키기에 충분한 혈액을 공급하지 못하는 상태','심실이 과도하게 수축하는 상태','판막이 손상되어 혈액이 역류하는 상태','혈액량 저하로 인한 순환 부전 상태'],ans:1,exp:'심부전(heart failure)은 심장이 신체의 대사적 요구를 충족시킬 만큼 충분한 혈액을 공급하지 못하는 상태입니다. 단, 혈액량 감소로 인한 순환부전(출혈, 수분 손실)은 제외됩니다.'},
+{d:'하',q:'좌심부전(left-sided heart failure)의 가장 주요한 영향은?',opts:['말초 부종과 복수','간 울혈과 비장 비대','폐울혈, 폐부종 → 호흡곤란(dyspnea), 좌위호흡(orthopnea)','신장 혈류 감소만 발생','우심실 비대'],ans:2,exp:'좌심부전은 폐정맥계 울혈을 일으켜 폐울혈, 폐부종을 유발하고, 호흡곤란(dyspnea)과 좌위호흡(orthopnea, 누우면 숨이 차서 앉아야 하는 증상)이 나타납니다.'},
+{d:'하',q:'우심부전(right-sided heart failure)의 특징적 영향으로 옳은 것은?',opts:['폐부종과 호흡곤란','말초 부종, 간울혈, 복수','좌심실 비대','폐울혈','좌위호흡(orthopnea)'],ans:1,exp:'우심부전은 폐 관류 저하, 전신 정맥계(간, 비장, 신장, 피하)의 압력 증가를 일으켜 말초 부종(peripheral edema), 간울혈(hepatic congestion), 복수(ascites)를 유발합니다.'},
+{d:'하',q:'선천성 심질환(congenital heart dz.)의 내인성 원인에 해당하는 것은?',opts:['바이러스 감염','알코올','다운증후군 등 염색체 이상','약물 복용','방사선 노출'],ans:2,exp:'선천성 심질환의 원인은 외인성(바이러스, 알코올 등)과 내인성으로 나뉩니다. 내인성 원인은 다운증후군 등의 염색체 이상(chromosomal anomaly)이 대표적입니다.'},
+{d:'하',q:'협심증(angina pectoris)에 대한 설명으로 옳은 것은?',opts:['심근 괴사를 동반하는 질환','일과성 심근 허혈에 의한 증상(symptom)','안정 시에만 발생','운동으로 유발되지 않음','니트로글리세린으로 악화됨'],ans:1,exp:'협심증은 질환이 아닌 증상(symptom not a disease)으로, 심근 괴사 없이 일과성 심근 허혈에 의해 발생하는 흉통/흉부 불쾌감입니다. 운동·스트레스로 유발되고, 니트로글리세린으로 완화됩니다.'},
+{d:'하',q:'심근경색(MI)의 정의로 옳은 것은?',opts:['일시적 심근 허혈','지속적이고 심한 허혈로 인한 심근 세포 괴사/사망','심장 판막의 파괴','관상동맥의 일시적 경련','심장 전도 장애'],ans:1,exp:'심근경색(MI, "heart attack")은 prolonged severe ischemia(지속적이고 심한 허혈)로 인한 심근(cardiac muscle) 세포 사망입니다. 협심증과 달리 심근 괴사가 동반됩니다.'},
+{d:'하',q:'급성 심근경색(acute MI) 진단에 사용되는 혈청 바이오마커로 가장 대표적인 것은?',opts:['AST, ALT','CRP, ESR','CK-MB, 트로포닌(troponin)','BUN, Creatinine','혈당, HbA1c'],ans:2,exp:'급성 MI의 임상 진단은 증상, ECG 변화, 혈청 효소 검사를 기반으로 합니다. 손상된 심근세포에서 유리되는 CK-MB와 troponin이 핵심 바이오마커입니다.'},
+{d:'하',q:'급성 심장사(sudden cardiac death)의 정의로 옳은 것은?',opts:['심장 수술 중 사망','심장 질환 증상 없이 또는 증상 발생 1~24시간 이내 심장 원인으로 인한 사망','만성 심부전으로 인한 서서히 진행되는 사망','뇌졸중에 의한 사망','패혈증에 의한 사망'],ans:1,exp:'급성 심장사(sudden cardiac death)는 심장질환의 증상이 없거나, 증상이 생긴 지 1~24시간 이내에 심장 원인으로 사망하는 경우로 정의됩니다.'},
+{d:'하',q:'감염성 심내막염(infective endocarditis)에서 vegetation(증식)의 구성 성분으로 옳은 것은?',opts:['콜라겐과 탄성섬유','콜레스테롤과 지질','피브린, 혈소판, 염증세포, 감염 미생물','평활근세포와 대식세포','칼슘 침착물'],ans:2,exp:'Vegetation은 fibrin, platelets, inflammatory cells, infectious organisms(감염 미생물)로 구성된 덩어리입니다. 세균이 심장 판막 표면에 부착·증식하여 vegetation을 형성하고 그 아래 심장 조직을 파괴합니다.'},
+{d:'중',q:'좌심부전의 원인으로 옳지 않은 것은?',opts:['허혈성 심질환','고혈압','대동맥 및 승모판 판막 질환','심근 질환','원발성 폐고혈압'],ans:4,exp:'좌심부전의 주요 원인은 ①허혈성 심질환 ②고혈압 ③대동맥 및 승모판 판막 질환 ④심근 질환입니다. 원발성 폐고혈압은 우심부전(폐심장증, cor pulmonale)의 원인입니다.'},
+{d:'중',q:'우심부전(right-sided HF)의 원인이 아닌 것은?',opts:['좌심부전의 결과','내인성 폐질환','폐고혈압','허혈성 심질환','폐고혈압에 의한 우심실 과부하'],ans:3,exp:'우심부전의 원인은 ①좌심부전의 결과 ②내인성 폐질환 ③폐고혈압입니다. 허혈성 심질환은 좌심부전의 원인이며, 우심부전의 직접 원인은 아닙니다.'},
+{d:'중',q:'VSD(심실사이막결손)에서 초기 shunt의 방향으로 옳은 것은?',opts:['우→좌(right to left)','좌→우(left to right)','양방향 동등','shunt 없음','폐→체순환'],ans:1,exp:'VSD 등 선천성 심질환 초기에는 좌심실 압력이 우심실보다 높아 좌-우 단락(left to right shunt)이 일어납니다. 이로 인해 폐혈류량이 증가합니다.'},
+{d:'중',q:'Eisenmenger syndrome의 특징으로 옳은 것은?',opts:['좌-우 단락이 지속되면서 청색증 없음','좌-우 단락 → 폐동맥 고혈압 → 비가역적 내막변화 → 우-좌 단락 & 청색증','우-좌 단락이 처음부터 발생','폐혈류 감소로 시작','선천성 구조이상 없이 발생'],ans:1,exp:'Eisenmenger syndrome: 초기 좌-우 단락 → 폐혈류 증가 → 폐동맥 비후 및 혈관수축 → 비가역적 내막 변화 → 우심실 비대, 폐혈관 저항 증가 → 우-좌 단락 & 청색증으로 진행됩니다.'},
+{d:'중',q:'Fallot 사징증(tetralogy of Fallot)의 4가지 구성 요소로 옳은 것은?',opts:['ASD, 폐동맥협착, 대동맥 전위, 좌심실 비대','VSD, 폐동맥하 협착, VSD위로 대동맥 기승, 우심실 비대','VSD, ASD, 동맥관 개존, 우심실 비대','VSD, 대동맥 협착, 좌심실 비대, 폐동맥 전위','ASD, 대동맥 기승, 우심실 비대, 폐동맥 확장'],ans:1,exp:'Tetralogy of Fallot: ①VSD ②subpulmonary stenosis(폐동맥하 협착) ③aorta overriding VSD(대동맥 기승) ④right ventricular hypertrophy(우심실 비대)입니다.'},
+{d:'중',q:'모순색전증(paradoxical embolism)이 발생하는 기전으로 옳은 것은?',opts:['폐정맥에서 혈전이 형성되어 체순환으로 이동','말초 정맥에서 생긴 혈전이 폐를 우회하여 체순환으로 유입','동맥에서 혈전이 형성되어 정맥계로 이동','좌심방에서 혈전이 폐로 이동','폐동맥에서 혈전이 폐를 통과하여 체순환으로'],ans:1,exp:'모순색전증: 말초 정맥의 혈전(emboli from peripheral vein)이 폐를 우회(bypass lung)하여 체순환(systemic circulation)으로 유입되는 현상으로, VSD 등 심장 내 비정상 교통이 있을 때 발생합니다.'},
+{d:'중',q:'허혈성 심질환(ischemic heart disease)의 정의로 옳은 것은?',opts:['심장의 전기 전도 이상','심근의 산소 요구량과 공급량 사이의 불균형으로 인한 심근 허혈','심장 판막의 구조적 이상','심근의 만성 염증','심실의 과도한 비대'],ans:1,exp:'허혈성 심질환은 심근의 요구(demand)와 산소 공급(oxygen supply)의 불균형 → 심근 허혈(myocardial ischemia)로 정의됩니다. 대부분 관상동맥 죽상경화증에 의해 발생합니다.'},
+{d:'중',q:'허혈성 심질환의 4가지 임상 유형에 속하지 않는 것은?',opts:['협심증(angina pectoris)','심근경색(MI)','만성 허혈성 심질환','급성 심장사','심내막염(endocarditis)'],ans:4,exp:'허혈성 심질환의 4가지 임상 유형: ①협심증 ②심근경색(MI) ③만성 허혈성 심질환 ④급성 심장사(sudden death)입니다. 심내막염은 별개의 질환 범주입니다.'},
+{d:'중',q:'안정형 협심증(stable angina)과 불안정형 협심증(unstable angina)을 구별하는 기준은?',opts:['흉통의 위치','흉통의 성질(쥐어짜는지 여부)','흉통의 양상(지속시간·강도·빈도)의 변화 여부','흉통의 방사 부위','치료약물의 종류'],ans:2,exp:'통증 양상이 변하지 않으면 안정형 협심증(stable angina), 지속시간·강도·빈도가 변화하면 불안정형 협심증(unstable angina, "MI waiting to happen")입니다.'},
+{d:'중',q:'협심증 발작을 유발하는 요인으로 가장 거리가 먼 것은?',opts:['운동','계단 오르기','달리기','스트레스','수면'],ans:4,exp:'협심증은 주로 운동(exercise), 계단 오르기, 달리기, 스트레스 등 심근 산소 수요가 증가하는 상황에서 유발됩니다. 수면 시에는 일반적으로 발작이 잘 일어나지 않습니다.'},
+{d:'중',q:'협심증 치료에 사용되는 니트로글리세린(nitroglycerin)의 작용 기전으로 옳은 것은?',opts:['관상동맥을 직접 수축','정맥을 확장시켜 심장 전부하를 감소','혈압을 높임','혈소판 응집을 억제','심박수를 빠르게 함'],ans:1,exp:'니트로글리세린은 정맥(vein)을 확장(dilates v.)시켜 심장으로 돌아오는 혈류(전부하, preload)를 감소시키고 심근의 산소 요구를 낮춰 협심증을 완화합니다.'},
+{d:'중',q:'급성 심근경색(MI)의 원인으로 가장 중요한 것은?',opts:['관상동맥 경련','관상동맥 폐색 — 죽종성 플라크의 급성 변화(출혈, 미란, 궤양, 파열)','심근 자체의 이상','심장 판막 질환','심실 비대'],ans:1,exp:'MI의 원인은 관상동맥 폐색(coronary a. obstruction)으로, 죽종성 플라크(atheromatous plaque)에서 급성 변화(출혈, 미란, 궤양, 파열 등)가 생기며 발생합니다.'},
+{d:'중',q:'급성 MI에서 심근 괴사의 진행 방향으로 옳은 것은?',opts:['0시간에 즉시 전층 괴사 발생','폐색 후 시간이 지날수록 내막하부터 외막 방향으로 괴사가 점차 확대','48시간 이후에 괴사가 시작','외막부터 내막 방향으로 진행','24시간이 지나도 범위 변화 없음'],ans:1,exp:'관상동맥 폐색 시 즉시 허혈(0hr) → 약 2시간 후부터 내막하(subendocardial) 괴사 시작 → 24시간에 걸쳐 외막 방향으로 괴사가 확대됩니다(wavefront phenomenon).'},
+{d:'중',q:'급성 MI의 임상 증상으로 옳지 않은 것은?',opts:['전형적 흉통(crushing, stabbing, squeezing)','빠르고 약한 맥박','다량의 발한, 오심, 구토, 호흡곤란','약 25%에서 무증상','고혈압과 서맥'],ans:4,exp:'MI 증상: ①전형적 흉통 ②빠르고 약한 맥박 ③다량의 발한·오심·구토·호흡곤란 ④약 25%에서 무증상. 고혈압·서맥은 MI의 전형적 증상이 아닙니다.'},
+{d:'중',q:'급성 심장사의 원인 중 가장 높은 비율(80~90%)을 차지하는 것은?',opts:['대동맥 협착','관상동맥 질환(coronary a. disease)','비대심근병증','폐고혈압','심장 이식 후 합병증'],ans:1,exp:'급성 심장사 원인의 80~90%는 관상동맥 질환이며, 기전은 치명적인 부정맥(심실세동, 무수축)입니다. 기타 원인으로 선천성 구조이상, 승모판탈출증, 심근염, 비대심근병증 등이 있습니다.'},
+{d:'중',q:'고혈압성 심질환(HHD) — systemic(left-sided) HHD의 최소 진단 기준으로 옳은 것은?',opts:['관상동맥 죽상경화증 + 우심실 비대','고혈압의 병력 또는 병리학적 근거 + 보상성 좌심실 비대','폐고혈압 + 좌심실 확장','좌심방 비대 + 심방세동','승모판 질환 + 폐울혈'],ans:1,exp:'Systemic HHD의 최소 진단 기준: ①history or pathologic evidence of hypertension(고혈압 병력 또는 병리 근거) ②compensatory left ventricular hypertrophy(보상성 좌심실 비대)입니다.'},
+{d:'중',q:'폐심장증(cor pulmonale)의 정의로 옳은 것은?',opts:['좌심실 부전에 의한 폐고혈압','폐고혈압(원발성 또는 COPD 등)으로 인한 우심실 비대, 확장, 부전','관상동맥 질환에 의한 폐부종','승모판 협착에 의한 폐울혈','심방세동으로 인한 폐색전'],ans:1,exp:'폐심장증(cor pulmonale) = pulmonary(right-sided) HHD. 폐고혈압(원발성 폐고혈압, COPD 등)으로 인해 우심실 비대(hypertrophy), 확장(dilatation), 부전(failure)이 발생하는 상태입니다.'},
+{d:'중',q:'류마티스 열(rheumatic fever)의 발병 기전으로 옳은 것은?',opts:['관상동맥 죽상경화증에 의한 직접 손상','A군 연쇄상구균 인두염 후 면역학적으로 매개되는 다계통 염증 반응','바이러스가 심근을 직접 파괴','자가면역항체가 관상동맥을 공격','세균이 심장 판막에 직접 감염'],ans:1,exp:'류마티스 열은 A군 연쇄상구균(group A streptococcal) 인두염 후 약 2주 뒤에 면역학적으로 매개되는 급성 다계통 염증 질환입니다. 항체(Ab)와 CD4+ T세포가 연쇄상구균 M 단백질과 자신의 조직(심장, 관절 등)에 교차반응을 일으킵니다.'},
+{d:'중',q:'감염성 심내막염(infective endocarditis)에서 가장 흔한 원인균은?',opts:['Streptococcus viridans (50~60%)','Staphylococcus aureus (20~30%)','Enterococcus faecalis','Pseudomonas aeruginosa','Candida albicans'],ans:0,exp:'감염성 심내막염의 원인균: ①Streptococcus viridans(S. mutans, S. sanguis 등) — 50~60%로 가장 흔함(특히 아급성) ②Staphylococcus aureus — 20~30%(급성에 많음) ③Enterococcus faecalis 등이 있습니다.'},
+{d:'중',q:'감염성 심내막염의 두 가지 주요 소인(predisposing factors)은?',opts:['고혈압과 당뇨','심장 병변(결함/손상된 판막)과 균혈증(bacteremia)','흡연과 비만','고지혈증과 신부전','고령과 남성'],ans:1,exp:'감염성 심내막염의 두 가지 주요 소인: ①cardiac lesions(심장 병변) — 결함/손상된 심장 판막 ②bacteremia(균혈증) — 의료적, 외과적, 치과적 처치에 의해 발생합니다.'},
+{d:'중',q:'급성 심내막염과 아급성 심내막염의 구별 기준으로 옳은 것은?',opts:['원인균의 종류만으로 구별','급성: 고독력 + 정상 판막 / 아급성: 저독력 + 변형된 판막','급성은 치료가 불필요','아급성은 항상 치명적','급성은 판막 변형에서만 발생'],ans:1,exp:'급성(acute): high virulence + normal heart valve(고독력 균 + 정상 판막). 아급성(subacute): low virulence + deformed valves(저독력 균 + 변형 판막)으로 구별합니다.'},
+{d:'중',q:'치과 처치 시 항생제 예방투여(antibiotic prophylaxis)가 필요한 시술로 옳은 것은?',opts:['일반적인 방사선 촬영','발치, 치주 수술, 치근단 조직 조작 시술','단순 구강 검진','의치 조정','치아 미백'],ans:1,exp:'치은 조직이나 치근단 주위를 조작하거나 구강 점막을 천공하는 모든 치과 처치(발치, 치주 탐침·스케일링·치근 활택술, 생검, 봉합 제거, 교정 밴드 장착, 치은하 수복물 등)에서 항생제 예방투여가 필요합니다.'},
+{d:'중',q:'협심증 통증의 전형적인 방사 부위로 옳은 것은?',opts:['오른쪽 옆구리와 등','왼쪽 어깨, 턱, 오른쪽 또는 왼쪽 팔','복부와 하지','두통과 뒷목','양 하지'],ans:1,exp:'협심증의 흉통은 흉골하/심장 전방부(substernal/precordial)에서 시작하여 왼쪽 어깨, 턱(jaw), 오른쪽 또는 왼쪽 팔로 방사됩니다(radiating pain to left shoulder, jaw, right or left arm).'},
+{d:'중',q:'감염성 심내막염 예방을 위한 항생제 투여가 필요한 고위험군에 속하지 않는 것은?',opts:['인공 심장판막 보유자','이전 감염성 심내막염 병력','심장 이식 후 판막병증 발생자','특정 선천성 심질환','단순 치은염 환자'],ans:4,exp:'항생제 예방투여 필요 대상: 인공심장판막, 이전 감염성 심내막염 병력, 심장 이식 후 판막병증, 특정 선천성 심질환 등 고위험군입니다. 단순 치은염은 포함되지 않습니다.'},
+{d:'중',q:'MI 발생 후 1~2시간 이내에 급성 심장사가 발생하는 비율은?',opts:['5%','10%','20%(~30%)','50%','80%'],ans:2,exp:'MI 발생 후 약 20%(최대 30%?)의 환자가 1~2시간 이내 급성 심장사(sudden death)를 경험하며, 이는 주로 부정맥, 펌프 부전, 심정지(asystole)로 인해 발생합니다.'},
+{d:'상',q:'Eisenmenger syndrome에서 비가역적 폐고혈압 발생 후 치료 불가능한 이유로 옳은 것은?',opts:['폐동맥이 완전히 막히기 때문','비가역적 내막 변화로 폐혈관 저항이 영구적으로 증가하여 결손 교정만으로는 되돌릴 수 없기 때문','우심실이 완전히 소실되기 때문','선천성 결손이 자연 폐쇄되기 때문','체순환 혈압이 폐동맥압보다 낮아지기 때문'],ans:1,exp:'Eisenmenger syndrome에서 좌-우 단락 지속 → 폐혈류 증가 → 폐동맥 비후 및 혈관수축 → 비가역적 내막 변화(고혈압 시 세동맥 변화와 유사) → 폐혈관 저항이 영구적으로 증가합니다. 이 단계에서는 결손 교정으로 이미 고정된 폐혈관 저항을 되돌릴 수 없습니다.'},
+{d:'상',q:'급성 MI 후 합병증(complicated cases, 80~90%)에 해당하지 않는 것은?',opts:['수축 기능 장애(contractile dysfunction)','심장 부정맥(cardiac arrhythmia)','심근 파열(myocardial rupture)','무합병증 경과(uncomplicated)','심인성 쇼크'],ans:3,exp:'MI 후 80%가 생존하며, 그 중 10~20%는 무합병증(uncomplicated)이고 80~90%는 합병증이 발생합니다. 주요 합병증: 수축 기능 장애, 심장 부정맥, 심근 파열 등. 무합병증 경과(uncomplicated) 자체는 합병증이 아닙니다.'},
+{d:'상',q:'급성 심장사의 주요 기전으로 옳은 것은?',opts:['급성 심근경색에 의한 심근 완전 괴사','치명적인 부정맥(심실세동, 심실 무수축)에 의한 심장 기능 정지','폐색전에 의한 급성 폐부전','뇌졸중에 의한 호흡 정지','대동맥 파열로 인한 출혈'],ans:1,exp:'급성 심장사의 기전: 치명적인 부정맥(심장무수축/asystole, 심실세동/ventricular fibrillation)이 핵심입니다. 관상동맥 질환(80~90%)이 주된 기저 원인입니다.'},
+{d:'상',q:'류마티스 심질환에서 면역학적 병리 기전으로 옳은 것은?',opts:['연쇄상구균이 심장 판막을 직접 파괴','연쇄상구균 M 단백질에 대한 항체·CD4+ T세포가 심장 단백질과 교차반응','바이러스가 심근을 직접 감염','대식세포가 심장 판막을 공격','호중구가 관상동맥을 손상'],ans:1,exp:'류마티스 열 병리: 항체(Ab)와 CD4+ T세포가 연쇄상구균의 M 단백질에 반응 → 자신의 심장, 관절 등 단백질과 교차반응(crossreact with self proteins)하여 조직 손상을 일으킵니다.'},
+{d:'상',q:'좌심부전이 우심부전으로 이어지는 기전으로 옳은 것은?',opts:['좌심부전 → 체순환 정맥압 상승 → 우심실 부하 증가','좌심부전 → 폐울혈 → 폐고혈압 → 우심실 후부하 증가 → 우심부전','우심부전이 좌심부전보다 먼저 발생','좌심부전과 우심부전은 독립적으로만 발생','좌심실 비대가 우심실을 기계적으로 압박'],ans:1,exp:'좌심부전 → 폐정맥 울혈 → 폐동맥압 상승(폐고혈압) → 우심실 후부하(afterload) 증가 → 우심실 비대 및 부전으로 이어집니다. 우심부전의 원인 중 하나가 "consequences of left-sided failure"입니다.'},
+{d:'상',q:'Streptococcus viridans가 아급성 감염성 심내막염의 주요 원인균인 이유로 가장 적절한 것은?',opts:['독력이 강하여 정상 판막도 감염시키기 때문','구강 내 상재균으로 치과 시술 중 균혈증을 일으키고, 독력은 낮지만 변형된 판막에 부착하여 아급성으로 진행하기 때문','항생제에 완전히 내성이 있기 때문','혈관을 통해 직접 심근을 파괴하기 때문','병원내 감염(nosocomial)의 주요 원인이기 때문'],ans:1,exp:'S. viridans는 구강 내 정상 상재균(S. mutans, S. sanguis 등)으로, 치과 처치 시 균혈증을 일으킵니다. 독력은 낮아(low virulence) 기존에 손상·변형된 판막에 부착하여 아급성으로 진행합니다.'},
+{d:'상',q:'MI 발생 후 혈류 재개통(reperfusion) 치료의 핵심 원칙으로 옳은 것은?',opts:['이미 괴사된 세포를 재생시키기 위해','관상동맥 폐색 후 시간이 지날수록 괴사 범위가 확대되므로 조기 재관류로 괴사 범위를 최소화하기 위해','부정맥을 완전히 없애기 위해','심실 비대를 예방하기 위해','혈압을 낮추기 위해'],ans:1,exp:'MI에서 괴사는 내막하부터 시작하여 시간이 지날수록 외막 방향으로 확대됩니다(wavefront). 따라서 "time is muscle" 개념에 따라 빠른 재관류(reperfusion)가 생존 심근을 보존하는 핵심 원칙입니다.'},
+{d:'상',q:'치과 처치에서 균혈증이 감염성 심내막염으로 이어지는 과정으로 옳은 것은?',opts:['균혈증 → 즉각적인 심근 괴사','치과 시술 → 구강 내 세균 혈류 유입(균혈증) → 손상된 판막에 세균 부착 → vegetation 형성 → 심장 조직 파괴','균혈증 → 관상동맥 폐색','치과 시술 → 전신 염증 → 혈전 → 관상동맥 폐색','균혈증 → 폐렴 → 심근염'],ans:1,exp:'치과 시술(발치, 치주 처치 등) → 구강 내 상재균(특히 S. viridans) 혈류 유입 → 균혈증 → 손상·변형된 심장 판막 표면에 부착 → vegetation(피브린+혈소판+세균) 형성 → 판막 파괴의 과정으로 감염성 심내막염이 발생합니다.'},
+{d:'상',q:'급성 MI에서 plaque rupture 후 occlusive thrombus와 mural thrombus의 임상적 차이로 옳은 것은?',opts:['차이 없음','폐쇄성 혈전(occlusive thrombus) → 급성 MI 또는 급성 심장사 / 벽재성 혈전(mural thrombus) → 불안정형 협심증','벽재성 혈전이 더 치명적','폐쇄성 혈전은 혈전 없이 발생','벽재성 혈전은 MI 후 발생하지 않음'],ans:1,exp:'Plaque rupture 후: 혈소판 응집 → ①폐쇄성 혈전(occlusive thrombus) → 급성 MI 또는 급성 심장사 / ②벽재성 혈전(mural thrombus) → 불안정형 협심증으로 이어집니다.'},
+{d:'상',q:'심부전에서 oliguria(소변감소)가 발생하는 기전으로 옳은 것은?',opts:['신장 비대로 인한 기계적 폐색','심박출량 저하 → 신장 관류 저하 → 사구체 여과율(GFR) 감소 → 소변감소','항이뇨호르몬 결핍','신장 염증에 의한 직접 손상','폐부종에 의한 이차적 신장 손상'],ans:1,exp:'심부전 시 심박출량 감소 → 신장 혈류(관류) 감소 → 사구체 여과율(GFR) 감소 → 소변 감소(oliguria)가 발생합니다. 이는 좌심부전에서 다발성 장기부전의 일부입니다.'},
+{d:'상',q:'선천성 심질환에서 좌-우 단락 시 청색증이 없고, 우-좌 단락 시 청색증이 발생하는 이유로 옳은 것은?',opts:['좌심압이 낮아 처음부터 우-좌로 흐름','좌-우 단락 시 산소화된 혈액이 폐로 더 많이 가므로 청색증 없음; 우-좌 단락 시 탈산소화 혈액이 체순환으로 나와 청색증 발생','청색증은 결손 크기에만 의존','좌-우 단락은 항상 청색증을 유발','우-좌 단락이 청색증을 초래하지 않음'],ans:1,exp:'좌-우 단락 시에는 산소화된 혈액이 폐 쪽으로 추가로 흘러가므로 체순환에 탈산소화 혈액이 나오지 않아 청색증이 없습니다. 폐혈관 저항 증가로 우-좌 단락으로 역전(Eisenmenger syndrome)되면 탈산소화 혈액이 체순환으로 유입되어 청색증이 발생합니다.'},
+{d:'상',q:'MI의 합병증인 심근 파열(myocardial rupture)이 가장 위험한 시기와 기전은?',opts:['발생 즉시(0~1시간), 괴사 세포가 팽창하여','발생 후 3~7일, 괴사 심근 제거(phagocytosis)로 심근 벽이 물러져 파열 위험 증가','발생 후 3개월 이후, 섬유화 과다로','발생 즉시, 관상동맥이 파열되어','발생 후 1년, 흉터 조직이 확장되어'],ans:1,exp:'심근 파열은 MI 후 약 3~7일경에 호중구와 대식세포에 의한 괴사 조직 제거(phagocytosis)로 심근 벽이 물러지는 시기에 가장 위험합니다. 심실 자유벽, 심실 중격, 유두근 파열이 대표적입니다.'},
+{d:'상',q:'고혈압성 심질환(HHD)에서 좌심실 비대(LVH)가 발생하는 기전과 장기적 결과로 옳은 것은?',opts:['좌심실 확장 → 비대 → 수축력 향상 지속','고혈압 → 좌심실 후부하 만성 증가 → 보상성 LVH → 장기적으로 심근 허혈·부정맥·심부전 위험 증가','좌심실 비대는 항상 정상적 적응 반응','우심실 비대가 먼저 발생 후 좌심실 비대','고혈압이 직접 관상동맥을 막아 LVH 발생'],ans:1,exp:'고혈압 → 좌심실 후부하(afterload) 만성 증가 → 압력 과부하에 대한 보상성 좌심실 비대(concentric LVH) → 심근 산소 요구량 증가, 관상동맥 예비능 감소 → 장기적으로 심근 허혈, 부정맥, 심부전으로 진행합니다.'},
+{d:'상',q:'치과 처치 시 심혈관 질환자에게 항생제 예방투여가 필요한 핵심 이유로 옳은 것은?',opts:['구강 내 통증을 줄이기 위해','치과 처치로 발생하는 균혈증이 고위험군에서 감염성 심내막염으로 이어질 수 있기 때문','모든 환자에서 세균 감염을 예방하기 위해','항생제가 혈압을 낮추기 때문','항생제가 판막을 강화하기 때문'],ans:1,exp:'치과 처치(발치, 치주 수술 등)는 구강 상재균이 혈류로 유입되는 균혈증을 유발합니다. 인공판막, 이전 심내막염 병력 등 고위험군에서는 이 균혈증이 감염성 심내막염으로 이어질 수 있으므로 예방적 항생제 투여가 필수적입니다.'},
+{d:'상',q:'급성 MI 환자에서 혈청 CK-MB와 troponin이 상승하는 이유로 옳은 것은?',opts:['간세포 손상으로 인한 효소 유출','심장 판막 파괴로 인한 효소 유출','괴사된 심근세포막의 파괴 → 세포 내 효소(CK-MB, troponin)가 혈류로 유출','골격근 파괴로 인한 효소 유출','신장 기능 저하로 인한 효소 축적'],ans:2,exp:'MI로 심근세포가 괴사(lethal damage)되면 세포막이 파괴되고, 세포 내 효소인 CK-MB(creatine phosphokinase-MB)와 troponin(심근 특이 단백)이 혈류로 유출되어 혈청 농도가 상승합니다. 이를 이용해 MI를 진단합니다.'}
+];
+
+let answered=new Array(50).fill(null),filter='전체',page=0;
+const pq=10;
+function getFiltered(){
+  if(filter==='전체') return questions.map((_,i)=>i);
+  return questions.map((_,i)=>i).filter(i=>questions[i].d===filter);
+}
+function render(){
+  const app=document.getElementById('app');
+  const idxs=getFiltered();
+  const total=idxs.length;
+  const done=idxs.filter(i=>answered[i]!==null).length;
+  const correct=idxs.filter(i=>answered[i]===questions[i].ans).length;
+  const totalPages=Math.ceil(total/pq);
+  const pageIdxs=idxs.slice(page*pq,(page+1)*pq);
+  app.innerHTML=`
+  <h1>심장질환 퀴즈</h1>
+  <div class="stats" style="margin-top:8px">
+    <div class="stat-pill">전체 <span>${total}문항</span></div>
+    <div class="stat-pill">풀이 <span>${done}</span></div>
+    <div class="stat-pill">정답 <span>${correct}</span></div>
+    <div class="stat-pill">정답률 <span>${done?Math.round(correct/done*100):0}%</span></div>
+  </div>
+  <div class="progress-bar" style="margin-top:12px"><div class="progress-fill" style="width:${done?Math.round(done/total*100):0}%"></div></div>
+  <div class="filter-row">
+    ${['전체','하','중','상'].map(f=>`<button class="filter-btn${filter===f?' active':''}" onclick="setFilter('${f}')">${f==='전체'?'전체':'난이도: '+f}</button>`).join('')}
+  </div>
+  ${pageIdxs.map(qi=>{
+    const q=questions[qi];
+    const userAns=answered[qi];
+    const isAnswered=userAns!==null;
+    return `<div class="q-card">
+      <div class="q-meta">
+        <span class="q-num">Q${qi+1}</span>
+        <span class="diff-badge ${q.d==='하'?'low':q.d==='중'?'mid':'high'}">${q.d}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o,oi)=>{
+          let cls='opt-btn';
+          if(isAnswered){
+            if(oi===q.ans) cls+=' correct';
+            else if(oi===userAns) cls+=' wrong';
+          }
+          return `<button class="${cls}" ${isAnswered?'disabled':''} onclick="answer(${qi},${oi})">
+            <span style="font-weight:600;margin-right:6px">${['①','②','③','④','⑤'][oi]}</span>${o}
+          </button>`;
+        }).join('')}
+      </div>
+      ${isAnswered?`<div class="explanation"><strong>${userAns===q.ans?'✓ 정답':'✗ 오답'}</strong> — ${q.exp}</div>`:''}
+    </div>`;
+  }).join('')}
+  <div class="nav">
+    <button class="nav-btn" onclick="changePage(-1)" ${page===0?'disabled':''}>← 이전</button>
+    <span class="q-counter">${page+1} / ${totalPages} 페이지</span>
+    <button class="nav-btn" onclick="changePage(1)" ${page>=totalPages-1?'disabled':''}>다음 →</button>
+  </div>`;
+}
+window.answer=function(qi,oi){answered[qi]=oi;render();};
+window.setFilter=function(f){filter=f;page=0;render();};
+window.changePage=function(d){page+=d;render();};
+render();
+</script>
+</body>
+</html>
